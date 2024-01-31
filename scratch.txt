@@ -1,0 +1,29 @@
+Notes
+spp dir = C:\Users\user\Documents\SPP
+
+OR
+
+C:/Users/user/Documents/SPP
+
+DAMC file name scheme (pulls DA, daily upload @ 14:00) = DA-MC-<YEAR><MONTH><1+CDAY><01><00>.csv
+https://portal.spp.org/file-browser-api/download/market-clearing?path=%2F2024%2F01%2FDA-MC-202401270100.csv
+
+OPDATA files needed MTLF, MTRF, STLF, STRF, RF_RESERVE_ZONE
+    MTLF; Hourly load forecast data for the SPP footprint (system-wide) for +7 days (actual RT load shown is averaged by hour as well).
+        (grab @ 6min past hour) https://portal.spp.org/file-browser-api/download/mtlf-vs-actual?path=%2F2024%2F01%2F18%2FOP-MTLF-202401182000.csv
+    MTRF; System-wide wind and solar forecast data for +7days organized by hour.
+        (grab @ 8min past hour) https://portal.spp.org/file-browser-api/download/midterm-resource-forecast?path=%2F2024%2F01%2F18%2FOP-MTRF-202401182000.csv
+    STLF; 5-minute load forecast data for the SPP footprint (system-wide) for +/- 10 minutes.
+        (grab @ 5min(+1) increments) https://portal.spp.org/file-browser-api/download/stlf-vs-actual?path=%2F2024%2F01%2F18%2F22%2FOP-STLF-202401182105.csv
+    STRF; System-wide wind and solar forecast data for +4 hours and including actual wind and solar resource totals from previous intervals
+        (grab @ 5min(+1) increments) https://portal.spp.org/file-browser-api/download/shortterm-resource-forecast?path=%2F2024%2F01%2F18%2F22%2FOP-STRF-202401182110.csv
+
+RTBM files needed RTBM-OR-<YEAR><MONTH><DAY><HOUR><+5MinInc>.csv & RTBM-OR-latestInterval.csv
+    RTBM-OR-<YEAR><MONTH><DAY><HOUR><+5MinInc>.csv; Provides total Operating Reserve product clearing by Reserve Zone for each Real-Time Balancing Market solution for each Operating Interval.  Posting is updated after each study completes, roughly 5 minutes prior to the end of the operating interval.
+        https://portal.spp.org/file-browser-api/download/operating-reserves?path=%2F2024%2F01%2F21%2FRTBM-OR-202401210935.csv
+
+RTMD files needed Summary Forecast
+    summaryForecast.csv; The actual wind, actual solar and actual load is updated every five minutes and represent an integrated 5minute average. The intent of the display to is to show what the latest forecast data SPP has in the system at any given time.
+        https://portal.spp.org/chart-api/load-forecast/asFile
+    TieFlows.csv; Graphic view of tie-flow listing SPP Net Scheduled Interchange and SPP Net Actual Interchange
+        https://portal.spp.org/chart-api/interchange-trend/asFile
