@@ -17,12 +17,18 @@ def getcurrtime():
     global CDay
     global CDayL1
     global CDayP1
+    global YestMonth
     global CMonth
+    global TomMonth
+    global YestYear
     global CYear
+    global TomYear
     global C5MinInc
     global C5MinIncL1
     global C5MinIncP1
     global Now
+    Yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
+    Tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
     # get current time and date
     Now = datetime.datetime.now()
     CMinute = Now.strftime('%M')
@@ -30,10 +36,7 @@ def getcurrtime():
     if len(str(int(CHour) - 1)) == 1:
         CHourL1 = '0' + str(int(CHour) - 1)
     else:
-        if str(int(CHour) - 1) == '-1':
-            CHourL1 = '23'
-        else:
-            CHourL1 = str(int(CHour) - 1)
+        CHourL1 = str(int(CHour) - 1)
     if len(str(int(CHour) + 1)) == 1:
         CHourP1 = '0' + str(int(CHour) + 1)
     else:
@@ -41,20 +44,21 @@ def getcurrtime():
             CHourP1 = '00'
         else:
             CHourP1 = str(int(CHour) + 1)
-    CDay = Now.strftime('%d')
-    CDay = Now.strftime('%d')
-    if len(str(int(CDay) - 1)) == 1:
-        CDayL1 = '0' + str(int(CDay) - 1)
+    CDay = str(Now.strftime('%d'))
+    if len(str(Yesterday.day)) == 1:
+        CDayL1 = '0' + str(Yesterday.day)
     else:
-        CDayL1 = str(int(CDay) - 1)
-    CMonth = Now.strftime('%m')
-    CYear = Now.strftime('%Y')
-    if len(str(int(CDay) + 1)) == 1:
-        CDayP1 = '0' + str(int(CDay) + 1)
+        CDayL1 = str(Yesterday.day)
+    if len(str(Tomorrow.day)) == 1:
+        CDayP1 = '0' + str(Tomorrow.day)
     else:
-        CDayP1 = str(int(CDay) + 1)
-    CMonth = Now.strftime('%m')
-    CYear = Now.strftime('%Y')
+        CDayP1 = str(Tomorrow.day)
+    YestMonth = str(Yesterday.strftime('%m'))
+    CMonth = str(Now.strftime('%m'))
+    TomMonth = str(Tomorrow.strftime('%m'))
+    YestYear = str(Yesterday.strftime('%Y'))
+    CYear = str(Now.strftime('%Y'))
+    TomYear = str(Tomorrow.strftime('%Y'))
     if (math.floor(int(CMinute) / 5) * 5) > 9:
         C5MinInc = str((math.floor(int(CMinute) / 5) * 5))
     else:
@@ -66,9 +70,12 @@ def getcurrtime():
             C5MinIncL1 = '55'
         else:
             C5MinIncL1 = str(int(C5MinInc) - 5)
-    if str(int(C5MinInc) + 5) == "60":
-        C5MinIncP1 = '55'
+    if len(str(int(C5MinInc) + 1)) == 1:
+        C5MinIncP1 = '0' + str(int(C5MinInc) + 5)
     else:
+        if str(int(C5MinInc) + 5) == "60":
+            C5MinIncP1 = '55'
+        else:
             C5MinIncP1 = str(int(C5MinInc) + 5)
     TimeDict = {
         'Minute': CMinute,
@@ -79,7 +86,11 @@ def getcurrtime():
         'Last Day': CDayL1,
         'Next Day': CDayP1,
         'Month': CMonth,
+        'Yesterday Month': YestMonth,
+        'Tomorrow Month': TomMonth,
         'Year': CYear,
+        'Yesterday Year': YestYear,
+        'Tomorrow Year': TomYear,
         '5 Minute Interval': C5MinInc,
         'Last 5 Minute Interval': C5MinIncL1,
         'Next 5 Minute Interval': C5MinIncP1,
@@ -106,24 +117,29 @@ def checksetupdirs():
             os.mkdir('C:/Users/' + UserName + f'/Onedrive/Documents/SPP/{i}')
     print('Finished checking sub dirs.')
 
-
 def pulllatestcsv(x):
     #DAHRFR check/download
     if x == 'DAMC':
         SPPSubDirPath = SPPDocPath+'/'+x
     #check if most recent file is downloaded
-        if int(CHour) >= 14:
-            CDAMCFile = 'DA-MC-'+str(CYear)+str(CMonth)+str((1+int(CDay)))+'0100.csv'
+        if int(CHour) >= 14 and TomMonth == CMonth:
+            CDAMCFile = 'DA-MC-' + CYear + CMonth + CDayP1 + '0100.csv'
+            LinkMonth = CMonth
+        elif int(CHour) >= 14 and TomMonth != CMonth:
+            CDAMCFile = 'DA-MC-' + CYear + TomMonth + CDayP1 + '0100.csv'
+            LinkMonth = TomMonth
         else:
-            CDAMCFile = 'DA-MC-' + str(CYear) + str(CMonth) + str(CDay) + '0100.csv'
+            CDAMCFile = 'DA-MC-' + CYear + CMonth + CDay + '0100.csv'
+            LinkMonth = CMonth
         SPPCDAMCFilePath = SPPSubDirPath+'/'+CDAMCFile
 
         if CDAMCFile in os.listdir(SPPSubDirPath):
             print('Current DAMC file already downloaded.')
         else:
             print('Current DAMC file will be downloaded.')
-            file = requests.get(f'https://portal.spp.org/file-browser-api/download/market-clearing?path=%2F{CYear}%2F{CMonth}%2F{CDAMCFile}')
-            open(SPPCDAMCFilePath,'wb').write(file.content)
+            print(CDAMCFile)
+            file = requests.get(f'https://portal.spp.org/file-browser-api/download/market-clearing?path=%2F{CYear}%2F{LinkMonth}%2F{CDAMCFile}')
+            open(SPPCDAMCFilePath, 'wb').write(file.content)
             print("Current DAMC file finished downloading.")
             print(SPPCDAMCFilePath)
         return SPPCDAMCFilePath
@@ -210,9 +226,9 @@ def pulllatestcsv(x):
             if i == 'DAMC':
                 # check if most recent file is downloaded
                 if int(CHour) >= 14:
-                    CDAMCFile = 'DA-MC-' + str(CYear) + str(CMonth) + str((1 + int(CDay))) + '0100.csv'
+                    CDAMCFile = 'DA-MC-' + CYear + CMonth + CDayP1 + '0100.csv'
                 else:
-                    CDAMCFile = 'DA-MC-' + str(CYear) + str(CMonth) + str(CDay) + '0100.csv'
+                    CDAMCFile = 'DA-MC-' + CYear + CMonth + CDay + '0100.csv'
                 SPPCDAMCFilePath = SPPSubDirPath+'/'+CDAMCFile
 
                 if CDAMCFile in os.listdir(SPPSubDirPath):
@@ -306,4 +322,5 @@ def pulllatestcsv(x):
         }
         return SPPFileDict
 getcurrtime()
+pulllatestcsv('DAMC')
 print(Now)

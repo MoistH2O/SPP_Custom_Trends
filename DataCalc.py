@@ -5,7 +5,7 @@ import Utility
 
 # Pull latest SPP .csv's into pandas data frames
 DAMCTable = pd.read_csv(Utility.pulllatestcsv('DAMC'))
-SUMTable = pd.read_csv(Utility.pulllatestcsv('RTMD')[0])
+#SUMTable = pd.read_csv(Utility.pulllatestcsv('RTMD')[0])
 
 #Correct the Day Ahead Table
 DAMCTable['Interval'] = pd.to_datetime(DAMCTable['Interval'])
@@ -26,6 +26,8 @@ for i in DAMCTrendTable.index:
 DAMCTrendTable.ffill(inplace=True)
 print(DAMCTrendTable)
 
+
+
 #Correct the Summary Table
-SUMTable['Interval'] = pd.to_datetime(SUMTable['Interval'])
+#SUMTable['Interval'] = pd.to_datetime(SUMTable['Interval'])
 
