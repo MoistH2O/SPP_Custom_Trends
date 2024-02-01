@@ -1,5 +1,7 @@
 This repository contains code used to interact with the SPP website. Specifically, it grabs .csv files from the marketplace and generates trending displays.
+
 File Descriptions:
+
 Utility.py
 This file performs the following actions:
   - Grabs user info to find the document directory in OneDrive
