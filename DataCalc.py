@@ -5,7 +5,7 @@ import Utility
 
 # Pull latest SPP .csv's into pandas data frames
 DAMCTable = pd.read_csv(Utility.pulllatestcsv('DAMC'))
-#SUMTable = pd.read_csv(Utility.pulllatestcsv('RTMD')[0])
+SUMTable = pd.read_csv(Utility.pulllatestcsv('RTMD')[0])
 
 #Correct the Day Ahead Table
 DAMCTable['Interval'] = pd.to_datetime(DAMCTable['Interval'])
@@ -26,8 +26,19 @@ for i in DAMCTrendTable.index:
 DAMCTrendTable.ffill(inplace=True)
 print(DAMCTrendTable)
 
-
-
 #Correct the Summary Table
-#SUMTable['Interval'] = pd.to_datetime(SUMTable['Interval'])
+SUMTable['Interval'] = pd.to_datetime(SUMTable['Interval'])
+SUMTable.set_index(keys=DAMCTable['Interval'], inplace=True)
+SUMTable.drop('GMTIntervalEnd', axis=1, inplace=True)
+
+#Create combined table
+CombinedTrendTable = pd.DataFrame(index=NewDAMCTimeRange, columns=['STLF', 'MTLF', 'Capacity Available', 'Cap Minus Reserve'])
+for i in CombinedTrendTable.index:
+    CombinedTrendTable.loc[i, 'STLF'] = SUMTable.loc[i, 'STLF']
+    CombinedTrendTable.loc[i, 'MTLF'] = SUMTable.loc[i, 'MTLF']
+    CombinedTrendTable.loc[i, 'Capacity Available'] = DAMCTrendTable.loc[i, 'Capacity Available']
+    CombinedTrendTable.loc[i, 'Cap Minus Reserve'] = DAMCTrendTable.loc[i, 'Cap Minus Reserve']
+CombinedTrendTable['Total Gen'] = CombinedTrendTable['Capacity Available'] + SUMTable['MTWF']
+
+print(CombinedTrendTable)
 
