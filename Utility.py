@@ -321,5 +321,4 @@ def pulllatestcsv(x):
         }
         return SPPFileDict
 getcurrtime()
-pulllatestcsv('DAMC')
 print(Now)
